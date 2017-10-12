@@ -6,3 +6,5 @@ gzstream/*.so
 lib/
 src/*.o
 src/*.so
+*.h5
+*.hdf5
