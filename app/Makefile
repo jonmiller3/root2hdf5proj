@@ -13,10 +13,12 @@ LDFLAGS += -shared -Wl,-soname
 
 BINARIES   = NukeCCSkimmer_chunked_zsegments \
 			 TimeLatticeSkimmer_chunked \
-			 hdf5_test
+			 hdf5_test \
+			 skimmer_vtx_finding
 TARGETS    = NukeCCSkimmer_chunked_zsegments.o \
 			 TimeLatticeSkimmer_chunked.o \
-			 hdf5_test.o
+			 hdf5_test.o \
+			 skimmer_vtx_finding.o
 
 all: $(BINARIES) 
 
@@ -33,6 +35,9 @@ TimeLatticeSkimmer_chunked: TimeLatticeSkimmer_chunked.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 hdf5_test: hdf5_test.o
+	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
+
+skimmer_vtx_finding: skimmer_vtx_finding.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 clean:
