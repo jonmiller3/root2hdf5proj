@@ -47,6 +47,8 @@ ROOT to get:
     * xrootd-4.5.0c-slf6-x86_64-e14-prof.tar.bz2
     * libxml2-2.9.4b-slf6-x86_64-prof.tar.bz2
     * tbb-2017.7-slf6-x86_64-e14-prof.tar.bz2
+    * protobuf-3.3.1-slf6-x86_64-e14.tar.bz2
+    * tensorflow-1.3.0a-slf6-x86_64-e14-p2713d-prof.tar.bz2
 * copy to your products area, unpack, etc.
 * we should have:
 
@@ -65,12 +67,14 @@ $ ups list -aK+
 "libxml2" "v2_9_4b" "Linux64bit+2.6-2.12" "prof" ""
 "nose" "v1_3_7c" "NULL" "p2713d" ""
 "numpy" "v1_12_1" "Linux64bit+2.6-2.12" "e14:p2713d:prof" ""
+"protobuf" "v3_3_1" "Linux64bit+2.6-2.12" "e14" ""
 "pybind11" "v2_1_1" "NULL" "" ""
 "python" "v2_7_13d" "Linux64bit+2.6-2.12" "" ""
 "root" "v6_10_04d" "Linux64bit+2.6-2.12" "e14:prof" ""
 "six" "v1_10_0d" "NULL" "p2713d" ""
 "sqlite" "v3_16_02_00a" "Linux64bit+2.6-2.12" "" ""
 "tbb" "v2017_7" "Linux64bit+2.6-2.12" "e14:prof" ""
+"tensorflow" "v1_3_0a" "Linux64bit+2.6-2.12" "e14:p2713d:prof" ""
 "ups" "v5_2_0" "Linux64bit+2.6-2.12" "" "current"
 "xrootd" "v4_5_0c" "Linux64bit+2.6-2.12" "e14:prof" ""
 ```
