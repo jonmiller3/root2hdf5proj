@@ -6,6 +6,8 @@
 #include "TMath.h"
 #include "TVector2.h"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 using namespace RECOTRACKS_ANA;
 
 //----------------------------------------------------------------------------
@@ -282,6 +284,19 @@ void RecoTracksUtils::getFSParticles(const EnhNukeCC* mc,
         pdgs.push_back(mc->mc_FSPartPDG[i]);
         energies.push_back(ke);
     }
+}
+
+//----------------------------------------------------------------------------
+uint64_t RecoTracksUtils::computeEventId(int run, int subrun, int gate, int slice)
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(6) << run;
+    ss << std::setfill('0') << std::setw(4) << subrun;
+    ss << std::setfill('0') << std::setw(4) << gate;
+    ss << std::setfill('0') << std::setw(2) << slice;
+    const std::string& tmp = ss.str();
+    uint64_t eventid = strtoull(tmp.c_str(), NULL, 10);
+    return eventid;
 }
 
 #endif

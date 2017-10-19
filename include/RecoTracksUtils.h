@@ -150,6 +150,14 @@ namespace RECOTRACKS_ANA{
                 std::vector<int>& pdgs,
                 std::vector<double>& energies) const;
 
+        //! convert run, subrun, gate, and slice/phys num into 'eventid'
+        /*!
+          Return the unique eventid for run/sub/gate/slice.
+
+          @return uint64_t value.
+          */
+        uint64_t computeEventId(int run, int subrun, int gate, int slice);
+
         private:
 
         void setPOTMC( TChain *mc, const std::string& name );
