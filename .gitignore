@@ -1,6 +1,7 @@
 app/NukeCCSkimmer_chunked_zsegments
 app/TimeLatticeSkimmer_chunked
 app/hdf5_test
+app/skimmer_vtx_finding
 app/*.o
 gzstream/*.o
 gzstream/*.so
@@ -9,3 +10,4 @@ src/*.o
 src/*.so
 *.h5
 *.hdf5
+*.swp
