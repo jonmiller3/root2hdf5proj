@@ -44,6 +44,9 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
     std::vector<float> xs_1d;
     std::vector<float> us_1d;
     std::vector<float> vs_1d;
+    std::vector<float> xs_1d_t;
+    std::vector<float> us_1d_t;
+    std::vector<float> vs_1d_t;
 
     auto eventdat = make_ntuple({hdffile, "event_data"},
             make_scalar_column<unsigned long int>("eventids"),
@@ -82,16 +85,20 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
 
         for (unsigned int j = 0; j < mc->getLatticeSize(); ++j) {
             double energy_at_idx = mc->latticeNormEnergySums[j];
+            double time_at_idx = mc->latticeRelativeTimes[j];
             unsigned int idx = (unsigned int)mc->latticeEnergyIndices[j];
             std::string view = mc->getStringViewFromLatticePos(idx);
             if (view == "X") {
                 xs_1d.push_back(energy_at_idx);
+                xs_1d_t.push_back(time_at_idx);
             }
             else if (view == "U") {
                 us_1d.push_back(energy_at_idx);
+                us_1d_t.push_back(time_at_idx);
             }
             else if (view == "V") {
                 vs_1d.push_back(energy_at_idx);
+                vs_1d_t.push_back(time_at_idx);
             }
         }
 
@@ -110,12 +117,20 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         }
         uint64_t evtid = utils.computeEventId(run, subrun, gate, slice);
 
+        // now, append time data to the end of the energy vectors
+        xs_1d.insert(xs_1d.end(), xs_1d_t.begin(), xs_1d_t.end());
+        us_1d.insert(us_1d.end(), us_1d_t.begin(), us_1d_t.end());
+        vs_1d.insert(vs_1d.end(), vs_1d_t.begin(), vs_1d_t.end());
+
         eventdat.insert(evtid, segment, planecode, true_z);
         imgdat.insert(xs_1d.data(), us_1d.data(), vs_1d.data());
 
         xs_1d.clear();
+        xs_1d_t.clear();
         us_1d.clear();
+        us_1d_t.clear();
         vs_1d.clear();
+        vs_1d_t.clear();
     } // end for loop over events
 
     return 0;
