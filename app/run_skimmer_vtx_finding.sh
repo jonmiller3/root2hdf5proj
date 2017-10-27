@@ -14,9 +14,10 @@ STARTTIME=`date +%s`
 # p -> print frequency
 
 # BASEDIR="/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/me1Adata/v1_LMDB"
+SAMPLE="me1Amc"
 BASEDIR="/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/test"
-FILEPATH=$BASEDIR/vtxfndingimgs_127x94_me1Amc
-INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minervame_smalltest.txt"
+FILEPATH=$BASEDIR/vtxfndingimgs_127x94_${SAMPLE}
+INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
 
 # gdb -tui --args ./NukeCCSkimmer_chunked_zsegments \
 # gdb --args ./NukeCCSkimmer_chunked_zsegments \

@@ -61,8 +61,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             );
 
     int i = first_event_number;
-    // for (i = first_event_number; i < entries_mc; ++i) {
-    for (i = first_event_number; i < 10; ++i) {
+    for (i = first_event_number; i < entries_mc; ++i) {
+    // for (i = first_event_number; i < 100; ++i) {
 
         if ((i + 1) % 100 == 0) {
             std::cout << "Processed " << i << " / " << entries_mc << " ( " << 
