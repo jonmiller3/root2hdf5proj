@@ -14,7 +14,7 @@ STARTTIME=`date +%s`
 # p -> print frequency
 
 # BASEDIR="/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/me1Adata/v1_LMDB"
-SAMPLE="me1Bmc"
+SAMPLE="me1Amc"
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/201710/${SAMPLE}"
 FILEPATH=$BASEDIR/vtxfndingimgs_127x94_${SAMPLE}
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
@@ -40,7 +40,7 @@ time nice ./skimmer_vtx_finding \
     -n "$INPFILELIST" \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
     # -d \
-    # -m 501 \
+    # -m 500 \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_minerva1mc_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/minosmatch_nukecczdefs_fullz_127x94_minerva1mc_" \
