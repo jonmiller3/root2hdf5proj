@@ -139,7 +139,9 @@ namespace RECOTRACKS_ANA{
         //! Get the "plane-id code" for an MC event
         /*!
           The code is computed as:
-          truth_targetID + (truth_vtx_plane >> 3) + ((truth_vtx_module + 5) >> 4)
+            truth_targetID + (truth_vtx_plane >> 3) + ((truth_vtx_module + 5) >> 4)
+          and then converted to an evenly spaced increasing value in the order of
+          incidence in the detector.
 
           @return The integer code value.
           */
@@ -163,6 +165,7 @@ namespace RECOTRACKS_ANA{
         void setPOTMC( TChain *mc, const std::string& name );
         void setPOTData( TChain *data );
         std::vector< std::string > split_line( std::string line, const char* split_var );
+        int convertPlaneCode(int raw_code) const;
     };
 }
 #endif
