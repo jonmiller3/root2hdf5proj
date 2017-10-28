@@ -14,7 +14,7 @@ STARTTIME=`date +%s`
 # p -> print frequency
 
 # BASEDIR="/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/me1Adata/v1_LMDB"
-SAMPLE="me1Amc"
+SAMPLE="me1Bmc"
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/201710/${SAMPLE}"
 FILEPATH=$BASEDIR/vtxfndingimgs_127x94_${SAMPLE}
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
