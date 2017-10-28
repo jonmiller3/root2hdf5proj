@@ -35,12 +35,6 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
     File hdffile(hdf5_name, H5F_ACC_TRUNC);
 
     // views
-    // std::array<std::array<std::array<float, 94>, 127>, 2> xs = {0.};
-    // std::array<std::array<std::array<float, 47>, 127>, 2> us = {0.};
-    // std::array<std::array<std::array<float, 47>, 127>, 2> vs = {0.};
-    // std::array<float, 23876> xs_1d = {0.};
-    // std::array<float, 11938> us_1d = {0.};
-    // std::array<float, 11938> vs_1d = {0.};
     std::vector<float> xs_1d;
     std::vector<float> us_1d;
     std::vector<float> vs_1d;
@@ -61,8 +55,15 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             );
 
     int i = first_event_number;
-    for (i = first_event_number; i < entries_mc; ++i) {
-    // for (i = first_event_number; i < 100; ++i) {
+    int n_proc = 0;
+    if (n_max_evts < 0) {
+        n_proc = entries_mc;
+    }
+    else {
+        n_proc = n_max_evts < entries_mc ? n_max_evts : entries_mc;
+    }
+    n_proc += first_event_number;
+    for (i = first_event_number; i < n_proc; ++i) {
 
         if ((i + 1) % 100 == 0) {
             std::cout << "Processed " << i << " / " << entries_mc << " ( " << 
