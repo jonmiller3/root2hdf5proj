@@ -44,6 +44,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
 
     auto eventdat = make_ntuple({hdffile, "event_data"},
             make_scalar_column<unsigned long int>("eventids"),
+            make_scalar_column<unsigned int>("eventids_a"),
+            make_scalar_column<unsigned int>("eventids_b"),
             make_scalar_column<unsigned char>("segments"),
             make_scalar_column<unsigned short int>("planecodes"),
             make_scalar_column<float>("zs")
@@ -117,13 +119,20 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             slice = mc->slice_numbers[0];
         }
         uint64_t evtid = utils.computeEventId(run, subrun, gate, slice);
+        uint32_t evtia = utils.computeEventId32a(run, slice);
+        uint32_t evtib = utils.computeEventId32b(subrun, gate);
+        // std::cout << "i =  " << i << " " <<
+        //     " run = " << run << " " <<
+        //     " subrun = " << subrun << " " <<
+        //     " gate = " << gate << " " <<
+        //     " slice = " << slice << " " << std::endl;
 
         // now, append time data to the end of the energy vectors
         xs_1d.insert(xs_1d.end(), xs_1d_t.begin(), xs_1d_t.end());
         us_1d.insert(us_1d.end(), us_1d_t.begin(), us_1d_t.end());
         vs_1d.insert(vs_1d.end(), vs_1d_t.begin(), vs_1d_t.end());
 
-        eventdat.insert(evtid, segment, planecode, true_z);
+        eventdat.insert(evtid, evtia, evtib, segment, planecode, true_z);
         imgdat.insert(xs_1d.data(), us_1d.data(), vs_1d.data());
 
         xs_1d.clear();
