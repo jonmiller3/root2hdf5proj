@@ -13,14 +13,12 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-# BASEDIR="/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/me1Adata/v1_LMDB"
-SAMPLE="me1Gmc"
+SAMPLE="me1Adata"
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/201710/${SAMPLE}"
 FILEPATH=$BASEDIR/vtxfndingimgs_127x94_${SAMPLE}
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
 
-# gdb -tui --args ./NukeCCSkimmer_chunked_zsegments \
-# gdb --args ./NukeCCSkimmer_chunked_zsegments \
+# gdb -tui --args ./skimmer_vtx_finding \
 cat << EOF
 mkdir -p $BASEDIR
 time nice ./skimmer_vtx_finding \
@@ -29,17 +27,19 @@ time nice ./skimmer_vtx_finding \
     -z 100000000.0 \
     -i 0 \
     -n "$INPFILELIST" \
+    -d \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
 EOF
 mkdir -p $BASEDIR
+# gdb -tui --args ./skimmer_vtx_finding \
 time nice ./skimmer_vtx_finding \
     -f "$FILEPATH" \
     -c 25000 \
     -z 100000000.0 \
     -i 0 \
     -n "$INPFILELIST" \
+    -d \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
-    # -d \
     # -m 500 \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_minerva1mc_" \
