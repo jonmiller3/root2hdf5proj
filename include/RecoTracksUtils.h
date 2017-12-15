@@ -159,6 +159,20 @@ namespace RECOTRACKS_ANA{
           @return uint64_t value.
           */
         uint64_t computeEventId(int run, int subrun, int gate, int slice);
+        /*!
+          Return the unique eventid for run/sub/gate/slice. -> But, produce part of
+          the 32-bit decomposition into two numbers... the "first" part is run+slc
+
+          @return uint32_t value.
+          */
+        uint32_t computeEventId32a(int run, int slice);
+        /*!
+          Return the unique eventid for run/sub/gate/slice. -> But, produce part of
+          the 32-bit decomposition into two numbers... the "second" part is sub+gate
+
+          @return uint32_t value.
+          */
+        uint32_t computeEventId32b(int subrun, int gate);
 
         private:
 

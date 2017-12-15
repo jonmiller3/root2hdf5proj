@@ -521,4 +521,26 @@ uint64_t RecoTracksUtils::computeEventId(int run, int subrun, int gate, int slic
     return eventid;
 }
 
+//----------------------------------------------------------------------------
+uint32_t RecoTracksUtils::computeEventId32a(int run, int slice)
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(6) << run;
+    ss << std::setfill('0') << std::setw(2) << slice;
+    const std::string& tmp = ss.str();
+    uint32_t eventid = strtoul(tmp.c_str(), NULL, 10);
+    return eventid;
+}
+
+//----------------------------------------------------------------------------
+uint32_t RecoTracksUtils::computeEventId32b(int subrun, int gate)
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(4) << subrun;
+    ss << std::setfill('0') << std::setw(4) << gate;
+    const std::string& tmp = ss.str();
+    uint32_t eventid = strtoul(tmp.c_str(), NULL, 10);
+    return eventid;
+}
+
 #endif
