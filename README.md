@@ -81,3 +81,14 @@ $ ups list -aK+
 
 Note: `gzstream` is external code (see it's README and docs) copied here for
 convenience.
+
+## Scripts for setup
+
+An alternative way to configure the software is to use the provided setup
+scripts. Copy the contents of your products area, e.g.
+
+    cp product_setup/* /path/to/products/area
+
+Then run the install script.
+
+    bash install.sh | tee log_install.txt
