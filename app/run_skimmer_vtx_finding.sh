@@ -40,6 +40,7 @@ time nice ./skimmer_vtx_finding \
     -n "$INPFILELIST" \
     -d \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
+    # -s 0 
     # -m 500 \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_minerva1mc_" \
