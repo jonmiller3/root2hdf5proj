@@ -31,5 +31,5 @@ do
     bash pullPackage `pwd` slf6 $pack prof
 done
 
-bash pullPackage `pwd` protobuf-v3_3_1 e14
-bash pullPackage `pwd` tensorflow-v1_3_0a e14-p2713d prof
+bash pullPackage `pwd` slf6 protobuf-v3_3_1 e14
+bash pullPackage `pwd` slf6 tensorflow-v1_3_0a e14-p2713d prof
