@@ -13,7 +13,7 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-SAMPLE="me1Adata"
+SAMPLE="me1Bmc"
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/201710/${SAMPLE}"
 FILEPATH=$BASEDIR/vtxfndingimgs_127x94_${SAMPLE}
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
@@ -27,9 +27,9 @@ time nice ./skimmer_vtx_finding \
     -z 100000000.0 \
     -i 0 \
     -n "$INPFILELIST" \
-    -d \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
 EOF
+#    -d \
 mkdir -p $BASEDIR
 # gdb -tui --args ./skimmer_vtx_finding \
 time nice ./skimmer_vtx_finding \
@@ -38,8 +38,8 @@ time nice ./skimmer_vtx_finding \
     -z 100000000.0 \
     -i 0 \
     -n "$INPFILELIST" \
-    -d \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
+    # -d \
     # -s 0 
     # -m 500 \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
