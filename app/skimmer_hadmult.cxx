@@ -60,6 +60,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             make_scalar_column<unsigned int>("int_type"),
             make_scalar_column<unsigned int>("targetZ"),
             make_scalar_column<float>("W"),
+            make_scalar_column<float>("x"),
+            make_scalar_column<float>("y"),
             make_scalar_column<float>("Q2")
             ); 
     /* - need a bit of thought on the hadron mult structure
@@ -144,6 +146,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         uint32_t int_type = mc->mc_intType;
         uint32_t targetZ = (uint32_t)mc->mc_targetZ;
         double W = mc->mc_w;
+        double x_bj = mc->mc_Bjorkenx;
+        double y_bj = mc->mc_Bjorkeny;
         double Q2 = mc->mc_Q2;
 
         // now, append time data to the end of the energy vectors
@@ -153,7 +157,7 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
 
         eventdat.insert(evtid, evtia, evtib, segment, planecode, true_z);
         imgdat.insert(xs_1d.data(), us_1d.data(), vs_1d.data());
-        gendat.insert(current, int_type, targetZ, W, Q2);
+        gendat.insert(current, int_type, targetZ, W, x_bj, y_bj, Q2);
 
         xs_1d.clear();
         xs_1d_t.clear();
