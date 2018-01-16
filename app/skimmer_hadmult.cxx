@@ -238,6 +238,7 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
                 n_hadmultmeas += 1;
                 esum_hadmultmeas += ke_i;
             }
+            // TODO - make a separate data stash for leptons!
             else {
                 n_others += 1;
                 esum_others += ke_i;
