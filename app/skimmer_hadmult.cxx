@@ -15,6 +15,32 @@
 using namespace hep_hpc::hdf5;
 using namespace RECOTRACKS_ANA;
 
+// I know this must be available in some header somewhere, but it is way
+// easier to just put a copy here than go find that header...
+const int32_t PDG_PROTON = 2212;
+const int32_t PDG_NEUTRON = 2112;
+const int32_t PDG_PIPLUS = 211;
+const int32_t PDG_PIZERO = 111;
+const int32_t PDG_PIMINUS = -211;
+const int32_t PDG_KPLUS = 321;
+const int32_t PDG_KMINUS = -321;
+const int32_t PDG_SIGMAPLUS = 3222;
+const int32_t PDG_SIGMAMINIUS = 3112;
+
+const int32_t PDG_ELECTRON = 11;
+const int32_t PDG_NUE = 12;
+const int32_t PDG_MUON = 13;
+const int32_t PDG_NUMU = 14;
+const int32_t PDG_TAU = 15;
+const int32_t PDG_NUTAU = 16;
+
+const int32_t PDG_POSITRON = -11;
+const int32_t PDG_NUEBAR = -12;
+const int32_t PDG_ANTIMUON = -13;
+const int32_t PDG_NUMUBAR = -14;
+const int32_t PDG_ANTITAU = -15;
+const int32_t PDG_NUTAUBAR = -16;
+
 
 int Skim(int n_max_evts, int chunk_size, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
@@ -65,11 +91,23 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             make_scalar_column<float>("Q2")
             ); 
     /* - need a bit of thought on the hadron mult structure
-    auto hadrodat = make_ntuple({hdffile, "hadro_data"},
-            make_scalar_column<unsigned short int>("n_protons"),
-            make_scalar_column<float>("esum_protons"),
-            ); 
     */
+    auto hadrodat = make_ntuple({hdffile, "hadro_data"},
+            make_scalar_column<uint32_t>("n_protons"),
+            make_scalar_column<uint32_t>("n_neutrons"),
+            make_scalar_column<uint32_t>("n_chgdpions"),
+            make_scalar_column<uint32_t>("n_neutpions"),
+            make_scalar_column<uint32_t>("n_chgdkaons"),
+            make_scalar_column<uint32_t>("n_others"),
+            make_scalar_column<uint32_t>("n_hadmultmeas"),
+            make_scalar_column<float>("esum_protons"),
+            make_scalar_column<float>("esum_neutrons"),
+            make_scalar_column<float>("esum_chgdpions"),
+            make_scalar_column<float>("esum_neutpions"),
+            make_scalar_column<float>("esum_chgdkaons"),
+            make_scalar_column<float>("esum_others"),
+            make_scalar_column<float>("esum_hadmultmeas")
+            ); 
 
     int i = first_event_number;
     int n_proc = 0;
@@ -150,6 +188,62 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         double y_bj = mc->mc_Bjorkeny;
         double Q2 = mc->mc_Q2;
 
+        std::vector<int> pdgs;
+        std::vector<double> energies;
+        uint32_t n_protons = 0;
+        uint32_t n_neutrons = 0;
+        uint32_t n_chgdpions = 0;
+        uint32_t n_neutpions = 0;
+        uint32_t n_chgdkaons = 0;
+        uint32_t n_others = 0;
+        uint32_t n_hadmultmeas = 0;
+        float esum_protons = 0.0;
+        float esum_neutrons = 0.0;
+        float esum_chgdpions = 0.0;
+        float esum_neutpions = 0.0;
+        float esum_chgdkaons = 0.0;
+        float esum_others = 0.0;
+        float esum_hadmultmeas = 0.0;
+        utils.getFSParticles(mc, pdgs, energies);
+        for (std::vector<int>::size_type i = 0; i != pdgs.size(); ++i) {
+            int pdg_i = pdgs[i];
+            double ke_i = energies[i];
+            if (pdg_i == PDG_PROTON && ke_i > 50.0) {
+                n_protons += 1;
+                esum_protons += ke_i;
+                n_hadmultmeas += 1;
+                esum_hadmultmeas += ke_i;
+            }
+            else if (pdg_i == PDG_NEUTRON && ke_i > 50.0) {
+                n_neutrons += 1;
+                esum_neutrons += ke_i;
+                n_hadmultmeas += 1;
+                esum_hadmultmeas += ke_i;
+            }
+            else if ((pdg_i == PDG_PIPLUS || pdg_i == PDG_PIMINUS) && ke_i > 50.0) {
+                n_chgdpions += 1;
+                esum_chgdpions += ke_i;
+                n_hadmultmeas += 1;
+                esum_hadmultmeas += ke_i;
+            }
+            else if (pdg_i == PDG_PIZERO && ke_i > 50.0) {
+                n_neutpions += 1;
+                esum_neutpions += ke_i;
+                n_hadmultmeas += 1;
+                esum_hadmultmeas += ke_i;
+            }
+            else if ((pdg_i == PDG_KPLUS || pdg_i == PDG_KMINUS) && ke_i > 50.0) {
+                n_chgdkaons += 1;
+                esum_chgdkaons += ke_i;
+                n_hadmultmeas += 1;
+                esum_hadmultmeas += ke_i;
+            }
+            else {
+                n_others += 1;
+                esum_others += ke_i;
+            }
+        }
+
         // now, append time data to the end of the energy vectors
         xs_1d.insert(xs_1d.end(), xs_1d_t.begin(), xs_1d_t.end());
         us_1d.insert(us_1d.end(), us_1d_t.begin(), us_1d_t.end());
@@ -158,6 +252,10 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         eventdat.insert(evtid, evtia, evtib, segment, planecode, true_z);
         imgdat.insert(xs_1d.data(), us_1d.data(), vs_1d.data());
         gendat.insert(current, int_type, targetZ, W, x_bj, y_bj, Q2);
+        hadrodat.insert(
+                n_protons, n_neutrons, n_chgdpions, n_neutpions, n_chgdkaons, n_others, n_hadmultmeas,
+                esum_protons, esum_neutrons, esum_chgdpions, esum_neutpions, esum_chgdkaons, esum_others, esum_hadmultmeas
+                );
 
         xs_1d.clear();
         xs_1d_t.clear();

@@ -2,6 +2,7 @@ app/NukeCCSkimmer_chunked_zsegments
 app/TimeLatticeSkimmer_chunked
 app/hdf5_test
 app/skimmer_vtx_finding
+app/skimmer_hadmult
 app/*.o
 gzstream/*.o
 gzstream/*.so

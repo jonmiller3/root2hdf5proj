@@ -11,14 +11,12 @@ LDLIBS += -L../gzstream -lgzstream -lz
 
 LDFLAGS += -shared -Wl,-soname
 
-BINARIES   = NukeCCSkimmer_chunked_zsegments \
-			 TimeLatticeSkimmer_chunked \
-			 hdf5_test \
-			 skimmer_vtx_finding
-TARGETS    = NukeCCSkimmer_chunked_zsegments.o \
-			 TimeLatticeSkimmer_chunked.o \
-			 hdf5_test.o \
-			 skimmer_vtx_finding.o
+BINARIES   = hdf5_test \
+			 skimmer_vtx_finding \
+			 skimmer_hadmult
+TARGETS    = hdf5_test.o \
+			 skimmer_vtx_finding.o \
+			 skimmer_hadmult
 
 all: $(BINARIES) 
 
@@ -28,16 +26,13 @@ debug: all
 %.o: %.cxx
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) -c $< -o $@ #compile
 
-NukeCCSkimmer_chunked_zsegments: NukeCCSkimmer_chunked_zsegments.o
-	$(CXX) $(INCLUDE) $(CXXFLAGS) $(LDLIBS_CAFFE) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
-
-TimeLatticeSkimmer_chunked: TimeLatticeSkimmer_chunked.o
-	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
-
 hdf5_test: hdf5_test.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 skimmer_vtx_finding: skimmer_vtx_finding.o
+	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
+
+skimmer_hadmult: skimmer_hadmult.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 clean:
