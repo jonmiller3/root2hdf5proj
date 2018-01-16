@@ -115,10 +115,10 @@ namespace RECOTRACKS_ANA{
           finding no targets. If no target is found, return a numerical code that
           indicates whether we are between a given set of targets
 
-          1       2       3       4       5      target
-          |       |       |       |       |
+             1       2       3       4       5      target
+             |       |       |       |       |
           0  |   6   |   7   |   8   |   9   |  10  segment code
-          |       |       |       |       |
+             |       |       |       |       |
 
           Note, the segment coding looks a bit funny - this is because for
           convenience with the ML frameworks, it is best to have a 0-start for
