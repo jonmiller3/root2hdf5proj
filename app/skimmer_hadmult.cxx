@@ -42,6 +42,14 @@ const int32_t PDG_ANTITAU = -15;
 const int32_t PDG_NUTAUBAR = -16;
 
 
+bool is_neutrino(int abs_pdgcode) {
+    if (abs_pdgcode == PDG_NUE) return true;
+    if (abs_pdgcode == PDG_NUMU) return true;
+    if (abs_pdgcode == PDG_NUTAU) return true;
+    return false;
+}
+
+
 int Skim(int n_max_evts, int chunk_size, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
         int first_segment_index, int first_event_number,
@@ -89,6 +97,14 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             make_scalar_column<float>("x"),
             make_scalar_column<float>("y"),
             make_scalar_column<float>("Q2")
+            ); 
+    auto leptodat = make_ntuple({hdffile, "lepto_data"},
+            make_scalar_column<uint32_t>("n_electrons"),
+            make_scalar_column<uint32_t>("n_muons"),
+            make_scalar_column<uint32_t>("n_taus"),
+            make_scalar_column<float>("esum_electrons"),
+            make_scalar_column<float>("esum_muons"),
+            make_scalar_column<float>("esum_taus")
             ); 
     /* - need a bit of thought on the hadron mult structure
     */
@@ -197,6 +213,9 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         uint32_t n_chgdkaons = 0;
         uint32_t n_others = 0;
         uint32_t n_hadmultmeas = 0;
+        uint32_t n_electrons = 0;
+        uint32_t n_muons = 0;
+        uint32_t n_taus = 0;
         float esum_protons = 0.0;
         float esum_neutrons = 0.0;
         float esum_chgdpions = 0.0;
@@ -204,10 +223,15 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         float esum_chgdkaons = 0.0;
         float esum_others = 0.0;
         float esum_hadmultmeas = 0.0;
+        float esum_electrons = 0.0;
+        float esum_muons = 0.0;
+        float esum_taus = 0.0;
         utils.getFSParticles(mc, pdgs, energies);
         for (std::vector<int>::size_type i = 0; i != pdgs.size(); ++i) {
             int pdg_i = pdgs[i];
+            int abs_pdg_i = pdg_i < 0 ? -1 * pdg_i : pdg_i;
             double ke_i = energies[i];
+            if (is_neutrino(abs_pdg_i)) continue;
             if (pdg_i == PDG_PROTON && ke_i > 50.0) {
                 n_protons += 1;
                 esum_protons += ke_i;
@@ -217,10 +241,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             else if (pdg_i == PDG_NEUTRON && ke_i > 50.0) {
                 n_neutrons += 1;
                 esum_neutrons += ke_i;
-                n_hadmultmeas += 1;
-                esum_hadmultmeas += ke_i;
             }
-            else if ((pdg_i == PDG_PIPLUS || pdg_i == PDG_PIMINUS) && ke_i > 50.0) {
+            else if (abs_pdg_i == PDG_PIPLUS && ke_i > 50.0) {
                 n_chgdpions += 1;
                 esum_chgdpions += ke_i;
                 n_hadmultmeas += 1;
@@ -229,16 +251,25 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
             else if (pdg_i == PDG_PIZERO && ke_i > 50.0) {
                 n_neutpions += 1;
                 esum_neutpions += ke_i;
-                n_hadmultmeas += 1;
-                esum_hadmultmeas += ke_i;
             }
-            else if ((pdg_i == PDG_KPLUS || pdg_i == PDG_KMINUS) && ke_i > 50.0) {
+            else if (abs_pdg_i == PDG_KPLUS && ke_i > 50.0) {
                 n_chgdkaons += 1;
                 esum_chgdkaons += ke_i;
                 n_hadmultmeas += 1;
                 esum_hadmultmeas += ke_i;
             }
-            // TODO - make a separate data stash for leptons!
+            else if (abs_pdg_i == PDG_ELECTRON) {
+                n_electrons += 1;
+                esum_electrons += ke_i;
+            }
+            else if (abs_pdg_i == PDG_MUON) {
+                n_muons += 1;
+                esum_muons += ke_i;
+            }
+            else if (abs_pdg_i == PDG_TAU) {
+                n_taus += 1;
+                esum_taus += ke_i;
+            }
             else {
                 n_others += 1;
                 esum_others += ke_i;
@@ -256,6 +287,9 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         hadrodat.insert(
                 n_protons, n_neutrons, n_chgdpions, n_neutpions, n_chgdkaons, n_others, n_hadmultmeas,
                 esum_protons, esum_neutrons, esum_chgdpions, esum_neutpions, esum_chgdkaons, esum_others, esum_hadmultmeas
+                );
+        leptodat.insert(
+                n_electrons, n_muons, n_taus, esum_electrons, esum_muons, esum_taus
                 );
 
         xs_1d.clear();
