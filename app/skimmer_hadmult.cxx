@@ -1,3 +1,27 @@
+/*
+        // current mc_current
+        //   1 == CC, 2 == NC
+        // get GENIE reaction code
+        // ...  mc_intType as of GENIE 2.8.4, the int type enum
+        // ($GENIE/src/Interaction/ScatteringType.h) was:
+        // typedef enum EScatteringType {
+        //   * == seen in the MC files...
+        // 0          kScNull = 0,
+        // 1    *     kScQuasiElastic,
+        // 2    *     kScDeepInelastic,
+        // 3    *     kScResonant,
+        // 4    *     kScCoherent,
+        // 5          kScDiffractive,
+        // 6    *     kScNuElectronElastic,
+        // 7          kScInverseMuDecay,
+        // 8          kScAMNuGamma,
+        // 9          kScMEC,
+        // 10         kScCoherentElas,
+        // 11         kScInverseBetaDecay,
+        // 12         kScGlashowResonance,
+        // 13         kScIMDAnnihilation
+        //         } ScatteringType_t;
+*/
 #include <iostream>
 #include <fstream>
 #include <string>
