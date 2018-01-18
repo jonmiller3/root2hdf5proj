@@ -78,7 +78,8 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
         int first_segment_index, int first_event_number,
         bool is_data, std::string ntuple_list_file,
-        bool norm_to_max)
+        bool norm_to_max, bool do_low_w_cut, bool do_high_w_cut,
+        double w_cut_val_mev)
 {
     RecoTracksUtils utils;
     //! Get MC Tree
@@ -166,6 +167,23 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         }
         mc->GetEntry(i);
 
+        uint32_t current = mc->mc_current;
+        uint32_t int_type = mc->mc_intType;
+        uint32_t targetZ = (uint32_t)mc->mc_targetZ;
+        double W = mc->mc_w;
+        double x_bj = mc->mc_Bjorkenx;
+        double y_bj = mc->mc_Bjorkeny;
+        double Q2 = mc->mc_Q2;
+
+        if (do_low_w_cut || do_high_w_cut) {
+            if (do_low_w_cut) {
+                if (W > w_cut_val_mev) continue;
+            }
+            if (do_high_w_cut) {
+                if (W <= w_cut_val_mev) continue;
+            }
+        }
+
         // skip the event if z is too far downstream
         double true_z = -1e6;
         if (!is_data) true_z = mc->mc_vtx[2];
@@ -219,14 +237,6 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
         //     " subrun = " << subrun << " " <<
         //     " gate = " << gate << " " <<
         //     " slice = " << slice << " " << std::endl;
-
-        uint32_t current = mc->mc_current;
-        uint32_t int_type = mc->mc_intType;
-        uint32_t targetZ = (uint32_t)mc->mc_targetZ;
-        double W = mc->mc_w;
-        double x_bj = mc->mc_Bjorkenx;
-        double y_bj = mc->mc_Bjorkeny;
-        double Q2 = mc->mc_Q2;
 
         std::vector<int> pdgs;
         std::vector<double> energies;
@@ -340,6 +350,9 @@ int main( int argc, char *argv[]) try {
     int first_event_number = 0;
     bool is_data = false;
     bool norm_to_max = false;
+    bool do_low_w_cut = false;
+    bool do_high_w_cut = false;
+    double w_cut_val_mev = 1000.0;
 
     while ((optind < argc) && (argv[optind][0]=='-')) {
         std::string sw = argv[optind];
@@ -347,41 +360,56 @@ int main( int argc, char *argv[]) try {
             optind++;
             chunk_size = atoi(argv[optind]);
         }
-        else if (sw=="-m") {
-            optind++;
-            max_evts = atoi(argv[optind]);
-        }
-        else if (sw=="-z") {
-            optind++;
-            max_z = atof(argv[optind]);
-        }
-        else if (sw=="-f") {
-            optind++;
-            filebase = argv[optind];
-        }
-        else if (sw=="-i") {
-            optind++;
-            impose_nukecc_cuts = atoi(argv[optind]);
-        }
-        else if (sw=="-s") {
-            optind++;
-            first_segment_index = atoi(argv[optind]);
+        else if (sw=="-d") {
+            is_data = true;
         }
         else if (sw=="-e") {
             optind++;
             first_event_number = atoi(argv[optind]);
         }
-        else if (sw=="-d") {
-            is_data = true;
+        else if (sw=="-f") {
+            optind++;
+            filebase = argv[optind];
         }
-        else if (sw=="-x") {
-            norm_to_max = true;
+        else if (sw=="-h") {
+            do_high_w_cut = true;
+        }
+        else if (sw=="-i") {
+            optind++;
+            impose_nukecc_cuts = atoi(argv[optind]);
+        }
+        else if (sw=="-l") {
+            do_low_w_cut = true;
+        }
+        else if (sw=="-m") {
+            optind++;
+            max_evts = atoi(argv[optind]);
         }
         else if (sw=="-n") {
             optind++;
             ntuple_list_file = argv[optind];
         }
+        else if (sw=="-s") {
+            optind++;
+            first_segment_index = atoi(argv[optind]);
+        }
+        else if (sw=="-w") {
+            optind++;
+            w_cut_val_mev = atof(argv[optind]);
+        }
+        else if (sw=="-x") {
+            norm_to_max = true;
+        }
+        else if (sw=="-z") {
+            optind++;
+            max_z = atof(argv[optind]);
+        }
         optind++;
+    }
+
+    if (do_low_w_cut && do_high_w_cut) {
+        std::cout << "cannot be both a low and high W sample simultaneously" << std::endl;
+        return 1;
     }
 
     std::cout << "Producing skim..." << std::endl;
@@ -398,7 +426,8 @@ int main( int argc, char *argv[]) try {
 
     int status = Skim(max_evts, chunk_size, max_z, filebase,
             impose_nukecc_cuts, first_segment_index, first_event_number,
-            is_data, ntuple_list_file, norm_to_max);
+            is_data, ntuple_list_file, norm_to_max, do_low_w_cut,
+            do_high_w_cut, w_cut_val_mev);
     return status;
 
 } catch (std::exception const& ex) {
