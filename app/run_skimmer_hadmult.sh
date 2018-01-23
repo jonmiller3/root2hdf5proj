@@ -14,15 +14,25 @@ STARTTIME=`date +%s`
 # p -> print frequency
 
 SAMPLE="me1Amc"
-BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/201710/${SAMPLE}"
+PROCESSING="201710"   # Erocia+
+PROCESSING="201801"   # NX
+BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
+# INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minervame_tinytest.txt"
+INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
+
+WCUTSTRING="-l -w 1000.0"
+FILEPATH=$BASEDIR/hadmultkineimgs_127x94_${SAMPLE}_lowW_cut1000MeV
+
+WCUTSTRING="-h -w 1000.0"
+FILEPATH=$BASEDIR/hadmultkineimgs_127x94_${SAMPLE}_highW_cut1000MeV
+
+WCUTSTRING=""
 FILEPATH=$BASEDIR/hadmultkineimgs_127x94_${SAMPLE}
-# INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minerva_${SAMPLE}.txt"
-INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_201710_minervame_tinytest.txt"
 
 # gdb -tui --args ./skimmer_hadmult \
 cat << EOF
 mkdir -p $BASEDIR
-time nice ./skimmer_hadmult \
+time nice ./skimmer_hadmult $WCUTSTRING \
     -f "$FILEPATH" \
     -c 25000 \
     -z 100000000.0 \
@@ -33,15 +43,15 @@ EOF
 #    -d \
 mkdir -p $BASEDIR
 # gdb -tui --args ./skimmer_hadmult \
-time nice ./skimmer_hadmult \
+time nice ./skimmer_hadmult $WCUTSTRING \
     -f "$FILEPATH" \
     -c 25000 \
     -z 100000000.0 \
     -i 0 \
     -n "$INPFILELIST" \
     -s 0 2>&1 | tee ${STARTTIME}_out_log.txt
-    # -d \
     # -s 0 
+    # -d \
     # -m 500 \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_minerva1mc_" \
