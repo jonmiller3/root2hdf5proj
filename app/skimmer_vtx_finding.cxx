@@ -16,10 +16,9 @@ using namespace hep_hpc::hdf5;
 using namespace RECOTRACKS_ANA;
 
 
-int Skim(int n_max_evts, int chunk_size, double max_z,
+int Skim(int n_max_evts, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
-        int first_segment_index, int first_event_number,
-        bool is_data, std::string ntuple_list_file,
+        int first_event_number, bool is_data, std::string ntuple_list_file,
         bool norm_to_max)
 {
     RecoTracksUtils utils;
@@ -149,24 +148,18 @@ int Skim(int n_max_evts, int chunk_size, double max_z,
 int main( int argc, char *argv[]) try {
 
     int optind = 1;
-    int chunk_size = 100000;
     int max_evts = -1;  
     double max_z = 6172.29; // module 31
     std::string filebase = "nukecc_skim_me1Bmc_zsegments";
     std::string ntuple_list_file = "/minerva/data/users/perdue/RecoTracks/files/nukecc_20160825-0829_minerva13Cmc.txt";
     int impose_nukecc_cuts = 1;
-    int first_segment_index = 0;
     int first_event_number = 0;
     bool is_data = false;
     bool norm_to_max = false;
 
     while ((optind < argc) && (argv[optind][0]=='-')) {
         std::string sw = argv[optind];
-        if (sw=="-c") {
-            optind++;
-            chunk_size = atoi(argv[optind]);
-        }
-        else if (sw=="-m") {
+        if (sw=="-m") {
             optind++;
             max_evts = atoi(argv[optind]);
         }
@@ -181,10 +174,6 @@ int main( int argc, char *argv[]) try {
         else if (sw=="-i") {
             optind++;
             impose_nukecc_cuts = atoi(argv[optind]);
-        }
-        else if (sw=="-s") {
-            optind++;
-            first_segment_index = atoi(argv[optind]);
         }
         else if (sw=="-e") {
             optind++;
@@ -205,18 +194,16 @@ int main( int argc, char *argv[]) try {
 
     std::cout << "Producing skim..." << std::endl;
     std::cout << " max_evts = " << max_evts << std::endl;
-    std::cout << " chunk_size = " << chunk_size << std::endl;
     std::cout << " true max_z = " << max_z << std::endl;
     std::cout << " impose nuke cc reco cuts = " << impose_nukecc_cuts << std::endl;
     std::cout << " file base name = " << filebase << std::endl;
     std::cout << " first evt # = " << first_event_number << std::endl;
-    std::cout << " first segment # = " << first_segment_index << std::endl;
     std::cout << " is data = " << is_data << std::endl;
     std::cout << " ntuple list file = " << ntuple_list_file << std::endl;
     std::cout << " norm to max energy = " << norm_to_max << std::endl;
 
-    int status = Skim(max_evts, chunk_size, max_z, filebase,
-            impose_nukecc_cuts, first_segment_index, first_event_number,
+    int status = Skim(max_evts, max_z, filebase,
+            impose_nukecc_cuts, first_event_number,
             is_data, ntuple_list_file, norm_to_max);
     return status;
 
