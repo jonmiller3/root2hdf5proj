@@ -11,7 +11,7 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-SAMPLE="me1Amc"
+SAMPLE="me1Adata"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
@@ -43,8 +43,8 @@ time nice ./skimmer_hadmult $WCUTSTRING \
     -f "$FILEPATH" \
     -z 100000000.0 \
     -i 0 \
-    -m 500 \
     -n "$INPFILELIST" 2>&1 | tee ${STARTTIME}_out_log.txt
+    # -m 500 \
     # -d \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_" \
     # -f "/minerva/data/users/perdue/mlmpr/raw_dat/nukeccskimmer_minosmatch_127x94_nukecczdefs/with_t_processing/ztest_minerva1mc_" \
