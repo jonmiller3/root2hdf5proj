@@ -3,6 +3,7 @@ app/TimeLatticeSkimmer_chunked
 app/hdf5_test
 app/skimmer_vtx_finding
 app/skimmer_hadmult
+app/skimmer_root2hdf5
 app/*.o
 gzstream/*.o
 gzstream/*.so

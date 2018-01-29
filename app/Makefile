@@ -13,10 +13,12 @@ LDFLAGS += -shared -Wl,-soname
 
 BINARIES   = hdf5_test \
 			 skimmer_vtx_finding \
-			 skimmer_hadmult
+			 skimmer_hadmult \
+			 skimmer_root2hdf5
 TARGETS    = hdf5_test.o \
 			 skimmer_vtx_finding.o \
-			 skimmer_hadmult
+			 skimmer_hadmult \
+			 skimmer_root2hdf5.o
 
 all: $(BINARIES) 
 
@@ -33,6 +35,9 @@ skimmer_vtx_finding: skimmer_vtx_finding.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 skimmer_hadmult: skimmer_hadmult.o
+	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
+
+skimmer_root2hdf5: skimmer_root2hdf5.o
 	$(CXX) $(INCLUDE) $(CXXFLAGS) $(ROOTFLAGS) $(LDLIBS) $^ -o $@    #link
 
 clean:
