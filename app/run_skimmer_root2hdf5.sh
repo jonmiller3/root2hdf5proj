@@ -11,19 +11,19 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-DATA="data"
 DATA="mc"
+DATA="data"
 DATAFLAG="--${DATA}"
 
-SAMPLE="me1B${DATA}"
+FILEBASENAME="hadmultkineimgs"
+FILEBASENAME="mnvimgs"
+
+SAMPLE="me1E${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
 
-FILEBASENAME="vtxfndingimgs"
-FILEBASENAME="mnvimgs"
-FILEBASENAME="hadmultkineimgs"
 
 WCUTSTRING="-l -w 1000.0"
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_lowW_cut1000MeV
