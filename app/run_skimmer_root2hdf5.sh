@@ -15,7 +15,7 @@ DATA="data"
 DATA="mc"
 DATAFLAG="--${DATA}"
 
-SAMPLE="me1A${DATA}"
+SAMPLE="me1B${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
