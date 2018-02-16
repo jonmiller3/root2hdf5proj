@@ -14,6 +14,8 @@ STARTTIME=`date +%s`
 DATA="data"
 DATA="mc"
 DATAFLAG="--${DATA}"
+CLASSBALANCE=""
+CLASSBALANCE="--class_balance"
 
 FILEBASENAME="mnv"
 if [[ $DATA == "mc" ]]; then
@@ -22,7 +24,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1E${DATA}"
+SAMPLE="me1A${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
@@ -38,23 +40,25 @@ FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_highW_cut1000MeV
 WCUTSTRING=""
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}
 
+if [[ $CLASSBALANCE != "" ]]; then
+   FILEPATH=${FILEPATH}"_classbal" 
+fi
+
+ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $CLASSBALANCE -n $INPFILELIST"
+
 # gdb -tui --args ./skimmer_root2hdf5 \
 cat << EOF
-mkdir -p $BASEDIR
-time nice ./skimmer_root2hdf5 $WCUTSTRING \
-    -f "$FILEPATH" \
-    -z 100000000.0 \
-    -i 0 \
-    $DATAFLAG \
-    -n "$INPFILELIST" 2>&1 | tee ${STARTTIME}_out_log.txt
+time nice ./skimmer_root2hdf5 $ARGS 2>&1 | tee ${STARTTIME}_out_log.txt
 EOF
 mkdir -p $BASEDIR
 # gdb -tui --args ./skimmer_root2hdf5 \
-time nice ./skimmer_root2hdf5 $WCUTSTRING \
-    -f "$FILEPATH" \
-    -z 100000000.0 \
-    -i 0 \
-    $DATAFLAG \
-    -n "$INPFILELIST" 2>&1 | tee ${STARTTIME}_out_log.txt
-    # -m 500 \
+time nice ./skimmer_root2hdf5 $ARGS 2>&1 | tee ${STARTTIME}_out_log.txt
+
+# time nice ./skimmer_root2hdf5 $WCUTSTRING \
+#     -f "$FILEPATH" \
+#     -z 100000000.0 \
+#     -i 0 \
+#     $DATAFLAG \
+#     -n "$INPFILELIST" 2>&1 | tee ${STARTTIME}_out_log.txt
+#     -m 500 \
 

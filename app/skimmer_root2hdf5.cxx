@@ -27,6 +27,7 @@
 #include <string>
 #include <stdlib.h>
 #include <algorithm>
+#include <random>
 
 #include "hep_hpc/hdf5/File.hpp"
 #include "hep_hpc/hdf5/make_column.hpp"
@@ -65,6 +66,12 @@ const int32_t PDG_NUMUBAR = -14;
 const int32_t PDG_ANTITAU = -15;
 const int32_t PDG_NUTAUBAR = -16;
 
+// computed with NX ME1A MC
+const double segment_survival_probs[11] = {
+    0.55859928,  0.0911152 ,  0.08442876,  0.10437468,  0.14491003,
+    0.11193889,  0.26332697,  0.24948019,  0.08943792,  1.        ,
+    0.00697942
+};
 
 bool is_neutrino(int abs_pdgcode) {
     if (abs_pdgcode == PDG_NUE) return true;
@@ -78,7 +85,7 @@ int Skim(int n_max_evts, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
         int first_event_number, bool is_data, std::string ntuple_list_file,
         bool norm_to_max, bool do_low_w_cut, bool do_high_w_cut,
-        double w_cut_val_mev)
+        double w_cut_val_mev, bool class_balance)
 {
     RecoTracksUtils utils;
     //! Get MC Tree
@@ -151,6 +158,10 @@ int Skim(int n_max_evts, double max_z,
             make_scalar_column<float>("esum_hadmultmeas")
             ); 
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+
     int i = first_event_number;
     int n_proc = 0;
     if (n_max_evts < 0) {
@@ -195,6 +206,10 @@ int Skim(int n_max_evts, double max_z,
         unsigned short int planecode = 0xFFFF;
         if (!is_data) {
             segment = (unsigned char)utils.getSegmentForZPosition(true_z);
+            // skip event if class-balancing condition fails
+            if (class_balance && (dis(gen) > segment_survival_probs[segment])) {
+                continue;
+            }
             planecode = (unsigned short int)utils.getPlaneIdCode(mc);
         }
 
@@ -358,11 +373,15 @@ int main( int argc, char *argv[]) try {
     bool do_low_w_cut = false;
     bool do_high_w_cut = false;
     double w_cut_val_mev = 1000.0;
+    bool class_balance = false;
 
     while ((optind < argc) && (argv[optind][0]=='-')) {
         std::string sw = argv[optind];
         if (sw=="--data") {
             is_data = true;
+        }
+        if (sw=="--class_balance") {
+            class_balance = true;
         }
         if (sw=="--mc") {
             is_data = false;
@@ -421,10 +440,11 @@ int main( int argc, char *argv[]) try {
     std::cout << " is data = " << is_data << std::endl;
     std::cout << " ntuple list file = " << ntuple_list_file << std::endl;
     std::cout << " norm to max energy = " << norm_to_max << std::endl;
+    std::cout << " class balance = " << class_balance << std::endl;
 
     int status = Skim(max_evts, max_z, filebase,impose_nukecc_cuts, 
             first_event_number, is_data, ntuple_list_file, norm_to_max, do_low_w_cut,
-            do_high_w_cut, w_cut_val_mev);
+            do_high_w_cut, w_cut_val_mev, class_balance);
     return status;
 
 } catch (std::exception const& ex) {
