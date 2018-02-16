@@ -15,8 +15,12 @@ DATA="data"
 DATA="mc"
 DATAFLAG="--${DATA}"
 
-FILEBASENAME="hadmultkineimgs"
-FILEBASENAME="mnvimgs"
+FILEBASENAME="mnv"
+if [[ $DATA == "mc" ]]; then
+    FILEBASENAME="hadmultkineimgs"
+else 
+    FILEBASENAME="mnvimgs"
+fi
 
 SAMPLE="me1E${DATA}"
 PROCESSING="201710"   # Erocia+
