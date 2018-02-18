@@ -24,7 +24,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1A${DATA}"
+SAMPLE="me1E${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
@@ -41,7 +41,7 @@ WCUTSTRING=""
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}
 
 if [[ $CLASSBALANCE != "" ]]; then
-   FILEPATH=${FILEPATH}"_classbal" 
+   FILEPATH=${FILEPATH}"_segments_bal" 
 fi
 
 ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $CLASSBALANCE -n $INPFILELIST"
