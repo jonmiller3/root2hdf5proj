@@ -73,6 +73,14 @@ const double segment_survival_probs[11] = {
     0.00697942
 };
 
+const double target_planecode_survival_probs[5] = {
+    0.0806985883387, 0.0811123986095, 0.111138474019, 0.20879321687, 0.160324197739
+};
+const int32_t target_plane_codes[5] = {9, 18, 27, 44, 49};
+const std::map<int32_t, int32_t> planecode_to_target{
+      {9, 1}, {18, 2}, {27, 3}, {44, 4}, {49, 5}
+};
+
 bool is_neutrino(int abs_pdgcode) {
     if (abs_pdgcode == PDG_NUE) return true;
     if (abs_pdgcode == PDG_NUMU) return true;
@@ -85,7 +93,7 @@ int Skim(int n_max_evts, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
         int first_event_number, bool is_data, std::string ntuple_list_file,
         bool norm_to_max, bool do_low_w_cut, bool do_high_w_cut,
-        double w_cut_val_mev, bool class_balance)
+        double w_cut_val_mev, bool segment_balance, bool targets_balance)
 {
     RecoTracksUtils utils;
     //! Get MC Tree
@@ -207,10 +215,27 @@ int Skim(int n_max_evts, double max_z,
         if (!is_data) {
             segment = (unsigned char)utils.getSegmentForZPosition(true_z);
             // skip event if class-balancing condition fails
-            if (class_balance && (dis(gen) > segment_survival_probs[segment])) {
+            if (segment_balance && (dis(gen) > segment_survival_probs[segment])) {
                 continue;
             }
             planecode = (unsigned short int)utils.getPlaneIdCode(mc);
+            if (targets_balance) {
+                if (planecode == 9) {
+                    if (dis(gen) > target_planecode_survival_probs[0]) continue;
+                }
+                if (planecode == 18) {
+                    if (dis(gen) > target_planecode_survival_probs[1]) continue;
+                }
+                if (planecode == 27) {
+                    if (dis(gen) > target_planecode_survival_probs[2]) continue;
+                }
+                if (planecode == 44) {
+                    if (dis(gen) > target_planecode_survival_probs[3]) continue;
+                }
+                if (planecode == 49) {
+                    if (dis(gen) > target_planecode_survival_probs[4]) continue;
+                }
+            }
         }
 
         for (unsigned int j = 0; j < mc->getLatticeSize(); ++j) {
@@ -373,15 +398,19 @@ int main( int argc, char *argv[]) try {
     bool do_low_w_cut = false;
     bool do_high_w_cut = false;
     double w_cut_val_mev = 1000.0;
-    bool class_balance = false;
+    bool segment_balance = false;
+    bool targets_balance = false;
 
     while ((optind < argc) && (argv[optind][0]=='-')) {
         std::string sw = argv[optind];
         if (sw=="--data") {
             is_data = true;
         }
-        if (sw=="--class_balance") {
-            class_balance = true;
+        if (sw=="--segment_balance") {
+            segment_balance = true;
+        }
+        if (sw=="--targets_balance") {
+            targets_balance = true;
         }
         if (sw=="--mc") {
             is_data = false;
@@ -440,11 +469,12 @@ int main( int argc, char *argv[]) try {
     std::cout << " is data = " << is_data << std::endl;
     std::cout << " ntuple list file = " << ntuple_list_file << std::endl;
     std::cout << " norm to max energy = " << norm_to_max << std::endl;
-    std::cout << " class balance = " << class_balance << std::endl;
+    std::cout << " segment balance = " << segment_balance << std::endl;
+    std::cout << " targets balance = " << targets_balance << std::endl;
 
     int status = Skim(max_evts, max_z, filebase,impose_nukecc_cuts, 
             first_event_number, is_data, ntuple_list_file, norm_to_max, do_low_w_cut,
-            do_high_w_cut, w_cut_val_mev, class_balance);
+            do_high_w_cut, w_cut_val_mev, segment_balance, targets_balance);
     return status;
 
 } catch (std::exception const& ex) {

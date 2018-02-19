@@ -14,8 +14,12 @@ STARTTIME=`date +%s`
 DATA="data"
 DATA="mc"
 DATAFLAG="--${DATA}"
-CLASSBALANCE=""
-CLASSBALANCE="--class_balance"
+
+SEGMENTBALANCE="--class_balance"
+SEGMENTBALANCE=""
+
+TARGETSBALANCE=""
+TARGETSBALANCE="--targets_balance"
 
 FILEBASENAME="mnv"
 if [[ $DATA == "mc" ]]; then
@@ -30,6 +34,9 @@ PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
 
+MAXEVENTS="-m 10000"
+MAXEVENTS=""
+
 
 WCUTSTRING="-l -w 1000.0"
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_lowW_cut1000MeV
@@ -40,11 +47,15 @@ FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_highW_cut1000MeV
 WCUTSTRING=""
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}
 
-if [[ $CLASSBALANCE != "" ]]; then
+if [[ $SEGMENTBALANCE != "" ]]; then
    FILEPATH=${FILEPATH}"_segments_bal" 
 fi
 
-ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $CLASSBALANCE -n $INPFILELIST"
+if [[ $TARGETSBALANCE != "" ]]; then
+   FILEPATH=${FILEPATH}"_targets_bal" 
+fi
+
+ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $SEGMENTBALANCE $TARGETSBALANCE -n $INPFILELIST $MAXEVENTS"
 
 # gdb -tui --args ./skimmer_root2hdf5 \
 cat << EOF
