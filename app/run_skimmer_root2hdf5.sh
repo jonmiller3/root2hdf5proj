@@ -18,8 +18,8 @@ DATAFLAG="--${DATA}"
 SEGMENTBALANCE="--class_balance"
 SEGMENTBALANCE=""
 
-TARGETSBALANCE=""
 TARGETSBALANCE="--targets_balance"
+TARGETSBALANCE=""
 
 FILEBASENAME="mnv"
 if [[ $DATA == "mc" ]]; then
