@@ -11,8 +11,8 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-DATA="data"
 DATA="mc"
+DATA="data"
 DATAFLAG="--${DATA}"
 
 SEGMENTBALANCE="--class_balance"
@@ -28,7 +28,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1E${DATA}"
+SAMPLE="me1G${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
@@ -64,12 +64,4 @@ EOF
 mkdir -p $BASEDIR
 # gdb -tui --args ./skimmer_root2hdf5 \
 time nice ./skimmer_root2hdf5 $ARGS 2>&1 | tee ${STARTTIME}_out_log.txt
-
-# time nice ./skimmer_root2hdf5 $WCUTSTRING \
-#     -f "$FILEPATH" \
-#     -z 100000000.0 \
-#     -i 0 \
-#     $DATAFLAG \
-#     -n "$INPFILELIST" 2>&1 | tee ${STARTTIME}_out_log.txt
-#     -m 500 \
 

@@ -76,9 +76,15 @@ const double segment_survival_probs[11] = {
 const double target_planecode_survival_probs[5] = {
     0.0806985883387, 0.0811123986095, 0.111138474019, 0.20879321687, 0.160324197739
 };
-const int32_t target_plane_codes[5] = {9, 18, 27, 44, 49};
 const std::map<int32_t, int32_t> planecode_to_target{
       {9, 1}, {18, 2}, {27, 3}, {44, 4}, {49, 5}
+};
+const std::map<int32_t, double> target_to_survival{
+    {1, 0.0806985883387},
+    {2, 0.0811123986095},
+    {3, 0.111138474019},
+    {4, 0.20879321687},
+    {5, 0.160324197739}
 };
 
 bool is_neutrino(int abs_pdgcode) {
@@ -218,22 +224,15 @@ int Skim(int n_max_evts, double max_z,
             if (segment_balance && (dis(gen) > segment_survival_probs[segment])) {
                 continue;
             }
+            // skip event if class-balancing condition fails
             planecode = (unsigned short int)utils.getPlaneIdCode(mc);
             if (targets_balance) {
-                if (planecode == 9) {
-                    if (dis(gen) > target_planecode_survival_probs[0]) continue;
-                }
-                if (planecode == 18) {
-                    if (dis(gen) > target_planecode_survival_probs[1]) continue;
-                }
-                if (planecode == 27) {
-                    if (dis(gen) > target_planecode_survival_probs[2]) continue;
-                }
-                if (planecode == 44) {
-                    if (dis(gen) > target_planecode_survival_probs[3]) continue;
-                }
-                if (planecode == 49) {
-                    if (dis(gen) > target_planecode_survival_probs[4]) continue;
+                std::map<int32_t, int32_t>::const_iterator it = planecode_to_target.find(planecode);
+                if (it != planecode_to_target.end()) {
+                    std::map<int32_t, double>::const_iterator jt = target_to_survival.find(planecode_to_target.at(planecode));
+                    if (jt != target_to_survival.end()) {
+                        if (dis(gen) > target_to_survival.at(planecode_to_target.at(planecode))) continue;
+                    }
                 }
             }
         }
