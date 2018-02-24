@@ -34,10 +34,6 @@ PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
 INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
 
-MAXEVENTS="-m 10000"
-MAXEVENTS=""
-
-
 WCUTSTRING="-l -w 1000.0"
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_lowW_cut1000MeV
 
@@ -54,6 +50,10 @@ fi
 if [[ $TARGETSBALANCE != "" ]]; then
    FILEPATH=${FILEPATH}"_targets_bal" 
 fi
+
+MAXEVENTS="-m 1000"
+# FILEPATH=${FILEPATH}"_tiny" 
+MAXEVENTS=""
 
 ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $SEGMENTBALANCE $TARGETSBALANCE -n $INPFILELIST $MAXEVENTS"
 
