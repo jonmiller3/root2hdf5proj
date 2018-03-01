@@ -28,7 +28,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1G${DATA}"
+SAMPLE="me1F${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
@@ -51,8 +51,8 @@ if [[ $TARGETSBALANCE != "" ]]; then
    FILEPATH=${FILEPATH}"_targets_bal" 
 fi
 
-MAXEVENTS="-m 1000"
 # FILEPATH=${FILEPATH}"_tiny" 
+MAXEVENTS="-m 1000"
 MAXEVENTS=""
 
 ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $SEGMENTBALANCE $TARGETSBALANCE -n $INPFILELIST $MAXEVENTS"
