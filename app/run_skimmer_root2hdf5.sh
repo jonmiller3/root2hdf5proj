@@ -28,7 +28,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1N${DATA}"
+SAMPLE="me1O${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
