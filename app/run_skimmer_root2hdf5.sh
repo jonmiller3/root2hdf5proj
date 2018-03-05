@@ -11,8 +11,8 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-DATA="mc"
 DATA="data"
+DATA="mc"
 DATAFLAG="--${DATA}"
 
 SEGMENTBALANCE="--class_balance"
