@@ -11,8 +11,8 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-DATA="mc"
 DATA="data"
+DATA="mc"
 DATAFLAG="--${DATA}"
 
 SEGMENTBALANCE="--class_balance"
@@ -28,7 +28,7 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1D${DATA}"
+SAMPLE="me1O${DATA}"
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
