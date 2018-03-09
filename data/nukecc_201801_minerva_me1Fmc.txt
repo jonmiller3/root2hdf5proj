@@ -1,0 +1,2 @@
+/pnfs/minerva/persistent/users/wospakrk/NukeTuples/v1_NX/NukeCC_MC_AnaTuple_minervame1F_v1_NX.root
+/pnfs/minerva/persistent/users/wospakrk/NukeTuples/v1_NX/NukeCC_MC_AnaTuple_minervame1F_v1_NX_1.root
