@@ -28,11 +28,13 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1F${DATA}"
+SAMPLE="me1A${DATA}"
+SAMPLE="me1A${DATA}_missingfiles"
+
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
 BASEDIR="/minerva/data/users/perdue/mlmpr/hdf5_direct/${PROCESSING}/${SAMPLE}"
-INPFILELIST="/minerva/data/users/perdue/RecoTracks/files/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
+INPFILELIST="/minerva/app/users/perdue/root2hdf5proj/data/nukecc_${PROCESSING}_minerva_${SAMPLE}.txt"
 
 WCUTSTRING="-l -w 1000.0"
 FILEPATH=$BASEDIR/${FILEBASENAME}_127x94_${SAMPLE}_lowW_cut1000MeV
