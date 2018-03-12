@@ -28,8 +28,8 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1E${DATA}_missingfiles"
 SAMPLE="me1F${DATA}"
+SAMPLE="me1L${DATA}_missingfiles"
 
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
