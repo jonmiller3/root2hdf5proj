@@ -29,7 +29,7 @@ else
 fi
 
 SAMPLE="me1F${DATA}"
-SAMPLE="me1L${DATA}_missingfiles"
+SAMPLE="me1N${DATA}_missingfiles"
 
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
