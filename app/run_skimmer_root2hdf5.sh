@@ -11,8 +11,8 @@ STARTTIME=`date +%s`
 # n -> ntuple file list name
 # p -> print frequency
 
-DATA="mc"
 DATA="data"
+DATA="mc"
 DATAFLAG="--${DATA}"
 
 SEGMENTBALANCE="--class_balance"
@@ -28,8 +28,8 @@ else
     FILEBASENAME="mnvimgs"
 fi
 
-SAMPLE="me1N${DATA}_missingfiles"
-SAMPLE="me1M${DATA}"
+SAMPLE="me1L${DATA}_missingfiles"
+SAMPLE="me1P${DATA}"
 
 PROCESSING="201710"   # Erocia+
 PROCESSING="201801"   # NX
@@ -53,9 +53,9 @@ if [[ $TARGETSBALANCE != "" ]]; then
    FILEPATH=${FILEPATH}"_targets_bal" 
 fi
 
-# FILEPATH=${FILEPATH}"_tiny" 
-MAXEVENTS="-m 1000"
+FILEPATH=${FILEPATH}"_tiny" 
 MAXEVENTS=""
+MAXEVENTS="-m 5000"
 
 ARGS="$WCUTSTRING -f $FILEPATH -z 100000000.0 -i 0 $DATAFLAG $SEGMENTBALANCE $TARGETSBALANCE -n $INPFILELIST $MAXEVENTS"
 
