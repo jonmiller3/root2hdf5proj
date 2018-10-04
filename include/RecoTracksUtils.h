@@ -8,6 +8,7 @@
 #include "RecoTracksGetFiles.h"
 // below is the wrapped "raw" MakeClass output, with array lengths fixed
 #include "EnhNukeCC.h"
+//#include "CCProtonPi0.h"
 
 //#include "PlotUtils/MnvH1D.h"
 
@@ -149,6 +150,12 @@ namespace RECOTRACKS_ANA{
 
         //! fill pdgs and energies vectors _in step_
         void getFSParticles(const EnhNukeCC* mc,
+                std::vector<int>& pdgs,
+                std::vector<double>& energies) const;
+
+
+        //! fill pdgs and energies vectors _in step_
+        void getFSParticles(const EnhCCProtonPi0* mc,
                 std::vector<int>& pdgs,
                 std::vector<double>& energies) const;
 

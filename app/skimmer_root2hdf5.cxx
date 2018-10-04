@@ -29,6 +29,9 @@
 #include <algorithm>
 #include <random>
 
+#include "TFile.h"
+#include "TTree.h"
+
 #include "hep_hpc/hdf5/File.hpp"
 #include "hep_hpc/hdf5/make_column.hpp"
 #include "hep_hpc/hdf5/make_ntuple.hpp"
@@ -59,6 +62,8 @@ const int32_t PDG_NUMU = 14;
 const int32_t PDG_TAU = 15;
 const int32_t PDG_NUTAU = 16;
 
+const int32_t PDG_GAMMA = 22;
+
 const int32_t PDG_POSITRON = -11;
 const int32_t PDG_NUEBAR = -12;
 const int32_t PDG_ANTIMUON = -13;
@@ -87,6 +92,39 @@ const std::map<int32_t, double> target_to_survival{
     {5, 0.160324197739}
 };
 
+
+
+bool value_comparer(std::map<unsigned int, unsigned int>::value_type &i1, std::map<unsigned int, unsigned int>::value_type &i2)
+{
+  return i1.second<i2.second;
+}
+
+unsigned int simplePIDtransform(double pdg){
+
+  unsigned int res=0;
+
+  if (pdg==PDG_POSITRON || pdg==PDG_ELECTRON || pdg == PDG_PIZERO || pdg == PDG_GAMMA) {
+    res=1;
+  } else if (pdg == PDG_ANTIMUON || pdg == PDG_MUON) {
+    res=2;
+  } else if (pdg == PDG_PIPLUS) {
+    res=3;
+  } else if (pdg == PDG_PIMINUS) {
+    res=4;
+  } else if (pdg == PDG_NEUTRON) {
+    res=5;
+  }else if (pdg == PDG_PROTON) {
+    res=6;
+  } else if (pdg == PDG_PROTON) { 
+    res=6;
+  } else if (pdg != 0) {
+    res=7;
+  }
+
+  return res;
+
+}
+
 bool is_neutrino(int abs_pdgcode) {
     if (abs_pdgcode == PDG_NUE) return true;
     if (abs_pdgcode == PDG_NUMU) return true;
@@ -94,6 +132,58 @@ bool is_neutrino(int abs_pdgcode) {
     return false;
 }
 
+bool NonZero (int i) { return (!(i==0)); }
+
+float w_function(int max, int wi, int wj, std::vector<unsigned int> w_1d) {
+
+  std::vector<float> nele;
+  std::vector<float> nnele;
+  
+  nele.push_back(w_1d[wi+max*wj]);
+  if (wi!=0) {
+    nele.push_back(w_1d[wi-1+max*wj]);
+    if (wj!=0) nnele.push_back(w_1d[wi-1+max*(wj-1)]);
+    if (wj!=126) nnele.push_back(w_1d[wi-1+max*(wj+1)]);
+  }
+  if (wi!=(max-1)) {
+    nele.push_back(w_1d[wi+1+max*wj]);
+    if (wj!=0) nnele.push_back(w_1d[wi+1+max*(wj-1)]);
+    if (wj!=126) nnele.push_back(w_1d[wi+1+max*(wj+1)]);
+  }
+  if (wj!=0) {
+    nele.push_back(w_1d[wi+max*(wj-1)]);
+    if (wi!=0) nnele.push_back(w_1d[wi-1+max*(wj-1)]);
+    if (wi!=(max-1)) nnele.push_back(w_1d[wi+1+max*(wj-1)]);
+  }
+  if (wj!=126) {
+    nele.push_back(w_1d[wi+max*(wj+1)]);
+    if (wi!=0) nnele.push_back(w_1d[wi-1+max*(wj+1)]);
+    if (wi!=(max-1)) nnele.push_back(w_1d[wi+1+max*(wj+1)]);
+  }
+
+  //std::cout<<" I am here "<<wi<<" "<<wj<<" "<<max<<std::endl;
+
+  if (wi!=1) nnele.push_back(w_1d[wi-2+max*wj]);
+  if (wi!=(max-2)) nnele.push_back(w_1d[wi+2+max*wj]);
+  if (wj!=1) nnele.push_back(w_1d[wi+max*(wj-2)]);
+  if (wj!=125) nnele.push_back(w_1d[wi+max*(wj+2)]);
+  
+  if ((std::count (nele.begin(), nele.end(), PDG_MUON)>1)||
+      (std::count (nele.begin(), nele.end(), PDG_ANTIMUON)>1)) return 1.0;
+  if ((std::count_if (nele.begin(), nele.end(), NonZero)>1)||
+      (std::count (nnele.begin(), nnele.end(), PDG_MUON)>1)||
+      (std::count (nnele.begin(), nnele.end(), PDG_ANTIMUON)>1)) return 0.7;
+  if ((std::count_if (nnele.begin(), nnele.end(), NonZero)>1)) return 0.5;
+
+  if ((std::count_if (nnele.begin(), nnele.end(), NonZero)>0)||
+      (std::count_if (nele.begin(), nele.end(), NonZero)>0)) return 0.1;
+
+  return 0.0001;
+
+}
+
+
+#define NB 0
 
 int Skim(int n_max_evts, double max_z,
         std::string filebasename, int impose_nukecc_cuts,
@@ -104,14 +194,23 @@ int Skim(int n_max_evts, double max_z,
     RecoTracksUtils utils;
     //! Get MC Tree
     /* you basically always want n_mcfiles = -1 to get all files... */
-    TChain* tree_mc = utils.getMCTree("NukeCC", ntuple_list_file, -1, false);
+    TChain* tree_mc = utils.getMCTree("CCProtonPi0", ntuple_list_file, -1, false);
     int entries_mc = tree_mc->GetEntries();
+    #if NB
     EnhNukeCC* mc = new EnhNukeCC( tree_mc );
+    #else 
+    EnhCCProtonPi0* mc = new EnhCCProtonPi0( tree_mc );
+    #endif
 
     std::cout << "Loaded chain with " << entries_mc << " events." << std::endl;
 
     std::string hdf5_name = filebasename + ".hdf5";
+    std::string root_out_name = filebasename + ".root";
     File hdffile(hdf5_name, H5F_ACC_TRUNC);
+
+
+
+    
 
     // views
     std::vector<float> xs_1d;
@@ -120,6 +219,27 @@ int Skim(int n_max_evts, double max_z,
     std::vector<float> xs_1d_t;
     std::vector<float> us_1d_t;
     std::vector<float> vs_1d_t;
+
+    std::vector<float> xw_1d;
+    std::vector<float> uw_1d;
+    std::vector<float> vw_1d;
+
+   
+    std::map<unsigned int,unsigned int> xw_2d;
+    std::map<unsigned int,unsigned int> uw_2d;
+    std::map<unsigned int,unsigned int> vw_2d;
+
+
+    std::vector<unsigned int> xs_1d_p;
+    std::vector<unsigned int> us_1d_p;
+    std::vector<unsigned int> vs_1d_p;
+
+    std::vector<unsigned int> xs_1d_p3;
+    std::vector<unsigned int> us_1d_p3;
+    std::vector<unsigned int> vs_1d_p3;
+
+
+
 
     /* - need a bit of thought on the hadron mult structure
     */
@@ -133,6 +253,21 @@ int Skim(int n_max_evts, double max_z,
             make_column<float, 3>("hitimes-u", {2, 127, 47}),
             make_column<float, 3>("hitimes-v", {2, 127, 47})
             );
+    auto piddat = make_ntuple({hdffile, "pid_data"},
+            make_column<unsigned int, 3>("pid-x", {1, 127, 94}),
+            make_column<unsigned int, 3>("pid-u", {1, 127, 47}),
+            make_column<unsigned int, 3>("pid-v", {1, 127, 47})
+            );
+    auto piddat3 = make_ntuple({hdffile, "pid3_data"},
+            make_column<unsigned int, 3>("pid3-x", {1, 127, 94}),
+            make_column<unsigned int, 3>("pid3-u", {1, 127, 47}),
+            make_column<unsigned int, 3>("pid3-v", {1, 127, 47})
+            );
+    auto wdat = make_ntuple({hdffile, "w_data"},
+			    make_column<float, 3>("w-x", {1, 127, 94}),
+			    make_column<float, 3>("w-u", {1, 127, 47}),
+			    make_column<float, 3>("w-v", {1, 127, 47})
+			    );
     auto vtxdat = make_ntuple({hdffile, "vtx_data"},
             make_scalar_column<unsigned char>("segments"),
             make_scalar_column<unsigned short int>("planecodes"),
@@ -172,9 +307,39 @@ int Skim(int n_max_evts, double max_z,
             make_scalar_column<float>("esum_hadmultmeas")
             ); 
 
+
+    //std::cout<<" I made the hdf5 setup "<<std::endl;
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
+
+    TFile* fotree = TFile::Open(root_out_name.c_str(),"RECREATE");
+
+    TTree *t = new TTree("vectortree","Vectors and not Lattices");
+
+    std::vector<uint64_t> eids;
+
+
+    
+    
+    t->Branch("hitimes_x",&xs_1d);
+    t->Branch("hitimes_u",&us_1d);
+    t->Branch("hitimes_v",&vs_1d);
+
+    t->Branch("weight_x",&xw_1d);
+    t->Branch("weight_u",&uw_1d);
+    t->Branch("weight_v",&vw_1d);
+
+    t->Branch("pid_x",&xs_1d_p);
+    t->Branch("pid_u",&us_1d_p);
+    t->Branch("pid_v",&vs_1d_p);
+
+    t->Branch("pid3_x",&xs_1d_p);
+    t->Branch("pid3_u",&us_1d_p);
+    t->Branch("pid3_v",&vs_1d_p);
+
+    t->Branch("event_data",&eids);
 
     int i = first_event_number;
     int n_proc = 0;
@@ -185,14 +350,16 @@ int Skim(int n_max_evts, double max_z,
         n_proc = n_max_evts < entries_mc ? n_max_evts : entries_mc;
     }
     n_proc += first_event_number;
+    //std::cout<<" ebe "<< std::endl;
     for (i = first_event_number; i < n_proc; ++i) {
+
 
         if ((i + 1) % 100 == 0) {
             std::cout << "Processed " << i << " / " << entries_mc << " ( " << 
                 double(i)/entries_mc * 100.0 << " \%) events..." << std::endl;
         }
         mc->GetEntry(i);
-
+	//std::cout<<" I have entry "<<do_high_w_cut<<" "<<max_z<<" "<<mc->mc_vtx[2]<<std::endl;
         uint32_t current = mc->mc_current;
         uint32_t int_type = mc->mc_intType;
         uint32_t targetZ = (uint32_t)mc->mc_targetZ;
@@ -216,6 +383,7 @@ int Skim(int n_max_evts, double max_z,
         if (true_z > max_z) {
             continue;
         }
+	//std::cout<<" segment balance "<<std::endl;
         unsigned char segment = 0xFF;
         unsigned short int planecode = 0xFFFF;
         if (!is_data) {
@@ -225,36 +393,102 @@ int Skim(int n_max_evts, double max_z,
                 continue;
             }
             // skip event if class-balancing condition fails
-            planecode = (unsigned short int)utils.getPlaneIdCode(mc);
-            if (targets_balance) {
+	    #if NB
+	      planecode = (unsigned short int)utils.getPlaneIdCode(mc);
+	      if (targets_balance) {
                 std::map<int32_t, int32_t>::const_iterator it = planecode_to_target.find(planecode);
                 if (it != planecode_to_target.end()) {
-                    std::map<int32_t, double>::const_iterator jt = target_to_survival.find(planecode_to_target.at(planecode));
-                    if (jt != target_to_survival.end()) {
-                        if (dis(gen) > target_to_survival.at(planecode_to_target.at(planecode))) continue;
-                    }
+		  std::map<int32_t, double>::const_iterator jt = target_to_survival.find(planecode_to_target.at(planecode));
+		  if (jt != target_to_survival.end()) {
+		    if (dis(gen) > target_to_survival.at(planecode_to_target.at(planecode))) continue;
+		  }
                 }
-            }
+	      }
+	    #endif 
         }
 
+	//std::cout<<" doing lattice "<<std::endl;
+	std::map<bool,unsigned int> boolw;
+	
         for (unsigned int j = 0; j < mc->getLatticeSize(); ++j) {
             double energy_at_idx = mc->latticeNormEnergySums[j];
             double time_at_idx = mc->latticeRelativeTimes[j];
+	    double pid_at_idx = mc->latticePID[j];
             unsigned int idx = (unsigned int)mc->latticeEnergyIndices[j];
             std::string view = mc->getStringViewFromLatticePos(idx);
             if (view == "X") {
                 xs_1d.push_back(energy_at_idx);
                 xs_1d_t.push_back(time_at_idx);
+		unsigned int pidres = simplePIDtransform(pid_at_idx);
+		xs_1d_p.push_back(pidres);
+		if (pidres>2) pidres=2;
+		xs_1d_p3.push_back(pidres);
+		xw_1d.push_back((float)simplePIDtransform(pid_at_idx));
+		//if (!xw_2d[simplePIDtransform(pid_at_idx)]) {
+		//  xw_2d[simplePIDtransform(pid_at_idx)]=1;
+		//} else {
+		//  xw_2d[simplePIDtransform(pid_at_idx)]++;
+		//}
             }
             else if (view == "U") {
                 us_1d.push_back(energy_at_idx);
                 us_1d_t.push_back(time_at_idx);
+		unsigned int pidres = simplePIDtransform(pid_at_idx);
+		us_1d_p.push_back(pidres);
+		if (pidres>2) pidres=2;
+		us_1d_p3.push_back(pidres);
+		uw_1d.push_back((float)simplePIDtransform(pid_at_idx));
+		//if (!uw_2d[simplePIDtransform(pid_at_idx)]) {
+		//  uw_2d[simplePIDtransform(pid_at_idx)]=1;
+		//} else {
+		//  uw_2d[simplePIDtransform(pid_at_idx)]++;
+		//}
             }
             else if (view == "V") {
                 vs_1d.push_back(energy_at_idx);
                 vs_1d_t.push_back(time_at_idx);
+		unsigned int pidres = simplePIDtransform(pid_at_idx);
+		vs_1d_p.push_back(pidres);
+		if (pidres>2) pidres=2;
+		vs_1d_p3.push_back(pidres);
+		vw_1d.push_back((float)simplePIDtransform(pid_at_idx));
+		//if (!vw_2d[simplePIDtransform(pid_at_idx)]) {
+		//  vw_2d[simplePIDtransform(pid_at_idx)]=1;
+		//} else {
+		//  vw_2d[simplePIDtransform(pid_at_idx)]++;
+		//}
             }
+	    if (!boolw[simplePIDtransform(pid_at_idx)]) boolw[simplePIDtransform(pid_at_idx)]=1;
         }
+
+
+	//int max_x = std::max_element(xw_2d.begin(), xw_2d.end(), value_comparer)->second;
+	//int max_u = std::max_element(uw_2d.begin(), uw_2d.end(), value_comparer)->second;
+	//int max_v = std::max_element(vw_2d.begin(), vw_2d.end(), value_comparer)->second;
+
+	//std::cout<<" doing weighta "<<std::endl;
+
+	if (false) {
+	for (int wi=0; wi<94; wi++) {
+	  for (int wj=0; wj<127; wj++) {
+
+	    xw_1d[wi+94*wj]=w_function(94,wi,wj,xs_1d_p);
+	    //xw_1d[wi+94*wj]=1;
+	    if (wi<47) {
+	      uw_1d[wi+47*wj]=w_function(47,wi,wj,us_1d_p);
+	      vw_1d[wi+47*wj]=w_function(47,wi,wj,vs_1d_p);
+
+	      //uw_1d[wi+47*wj]=1;
+	      //vw_1d[wi+47*wj]=1;
+
+	    }
+
+
+	  }
+	} 
+	}
+	
+	//std::cout<<" doing run"<<std::endl;
 
         int run, subrun, gate, slice;
         if (is_data) {
@@ -272,7 +506,7 @@ int Skim(int n_max_evts, double max_z,
         uint64_t evtid = utils.computeEventId(run, subrun, gate, slice);
         uint32_t evtia = utils.computeEventId32a(run, slice);
         uint32_t evtib = utils.computeEventId32b(subrun, gate);
-        // std::cout << "i =  " << i << " " <<
+        //std::cout << "i =  " << i << " " <<
         //     " run = " << run << " " <<
         //     " subrun = " << subrun << " " <<
         //     " gate = " << gate << " " <<
@@ -300,63 +534,83 @@ int Skim(int n_max_evts, double max_z,
         float esum_electrons = 0.0;
         float esum_muons = 0.0;
         float esum_taus = 0.0;
-        utils.getFSParticles(mc, pdgs, energies);
-        for (std::vector<int>::size_type i = 0; i != pdgs.size(); ++i) {
+	//std::cout<<" aobut to get particles "<<std::endl;
+	//#if NB
+	  utils.getFSParticles(mc, pdgs, energies);
+	  for (std::vector<int>::size_type i = 0; i != pdgs.size(); ++i) {
             int pdg_i = pdgs[i];
             int abs_pdg_i = pdg_i < 0 ? -1 * pdg_i : pdg_i;
             double ke_i = energies[i];
             if (is_neutrino(abs_pdg_i)) continue;
             if (pdg_i == PDG_PROTON && ke_i > 50.0) {
-                n_protons += 1;
-                esum_protons += ke_i;
-                n_hadmultmeas += 1;
-                esum_hadmultmeas += ke_i;
+	      n_protons += 1;
+	      esum_protons += ke_i;
+	      n_hadmultmeas += 1;
+	      esum_hadmultmeas += ke_i;
             }
             else if (pdg_i == PDG_NEUTRON && ke_i > 50.0) {
-                n_neutrons += 1;
-                esum_neutrons += ke_i;
+	      n_neutrons += 1;
+	      esum_neutrons += ke_i;
             }
             else if (abs_pdg_i == PDG_PIPLUS && ke_i > 50.0) {
-                n_chgdpions += 1;
-                esum_chgdpions += ke_i;
-                n_hadmultmeas += 1;
-                esum_hadmultmeas += ke_i;
+	      n_chgdpions += 1;
+	      esum_chgdpions += ke_i;
+	      n_hadmultmeas += 1;
+	      esum_hadmultmeas += ke_i;
             }
             else if (pdg_i == PDG_PIZERO && ke_i > 50.0) {
-                n_neutpions += 1;
-                esum_neutpions += ke_i;
+	      n_neutpions += 1;
+	      esum_neutpions += ke_i;
             }
             else if (abs_pdg_i == PDG_KPLUS && ke_i > 50.0) {
-                n_chgdkaons += 1;
-                esum_chgdkaons += ke_i;
-                n_hadmultmeas += 1;
-                esum_hadmultmeas += ke_i;
+	      n_chgdkaons += 1;
+	      esum_chgdkaons += ke_i;
+	      n_hadmultmeas += 1;
+	      esum_hadmultmeas += ke_i;
             }
             else if (abs_pdg_i == PDG_ELECTRON) {
-                n_electrons += 1;
-                esum_electrons += ke_i;
+	      n_electrons += 1;
+	      esum_electrons += ke_i;
             }
             else if (abs_pdg_i == PDG_MUON) {
-                n_muons += 1;
-                esum_muons += ke_i;
+	      n_muons += 1;
+	      esum_muons += ke_i;
             }
             else if (abs_pdg_i == PDG_TAU) {
-                n_taus += 1;
-                esum_taus += ke_i;
+	      n_taus += 1;
+	      esum_taus += ke_i;
             }
             else {
-                n_others += 1;
-                esum_others += ke_i;
+	      n_others += 1;
+	      esum_others += ke_i;
             }
-        }
+	  
+	  }
+	  //#else
 
+	  //if (boolw[1]) n_electrons = 1;
+	  //if (boolw[2]) n_muons = 1;
+	  //if (boolw[3]||boolw[4]) n_chgdpions = 1;
+	  //if (boolw[5]) n_protons = 1;
+	  //if (boolw[6]) n_neutrons = 1;
+	  //if (boolw[7]) n_others = 1;
+
+	  //#endif  
         // now, append time data to the end of the energy vectors
         xs_1d.insert(xs_1d.end(), xs_1d_t.begin(), xs_1d_t.end());
         us_1d.insert(us_1d.end(), us_1d_t.begin(), us_1d_t.end());
         vs_1d.insert(vs_1d.end(), vs_1d_t.begin(), vs_1d_t.end());
 
-        eventdat.insert(evtid, evtia, evtib);
+
+	eventdat.insert(evtid, evtia, evtib);
+	eids.push_back(evtid);
+	eids.push_back(evtia);
+	eids.push_back(evtib);
+
         imgdat.insert(xs_1d.data(), us_1d.data(), vs_1d.data());
+        wdat.insert(xw_1d.data(), uw_1d.data(), vw_1d.data());
+        piddat.insert(xs_1d_p.data(), us_1d_p.data(), vs_1d_p.data());
+        piddat3.insert(xs_1d_p3.data(), us_1d_p3.data(), vs_1d_p3.data());
         if (!is_data) {
             vtxdat.insert(segment, planecode, true_z);
             gendat.insert(current, int_type, targetZ, W, x_bj, y_bj, Q2);
@@ -372,13 +626,34 @@ int Skim(int n_max_evts, double max_z,
                     );
         }
 
+	t->Fill();
+
+
+	eids.clear();
+	
         xs_1d.clear();
+        xw_1d.clear();
+        xw_2d.clear();
         xs_1d_t.clear();
+        xs_1d_p.clear();
+        xs_1d_p3.clear();
         us_1d.clear();
+        uw_1d.clear();
+        uw_2d.clear();
         us_1d_t.clear();
+        us_1d_p.clear();
+        us_1d_p3.clear();
         vs_1d.clear();
+        vw_1d.clear();
+        vw_2d.clear();
         vs_1d_t.clear();
+        vs_1d_p.clear();
+        vs_1d_p3.clear();
     } // end for loop over events
+
+    fotree->Write();
+
+    delete fotree;
 
     return 0;
 } // end Skim
@@ -388,9 +663,16 @@ int main( int argc, char *argv[]) try {
     int optind = 1;
     int max_evts = -1;  
     double max_z = 6172.29; // module 31
-    std::string filebase = "nukecc_skim_me1Bmc_zsegments";
-    std::string ntuple_list_file = "/minerva/data/users/perdue/RecoTracks/files/nukecc_20160825-0829_minerva13Cmc.txt";
-    int impose_nukecc_cuts = 1;
+    std::string filebase;
+    std::string ntuple_list_file;
+    #if NB
+    ntuple_list_file= "/minerva/app/users/jam3/cmtuser/root2hdf5proj/data/nukecc_test.txt";
+    filebase = "nukecc_skim_test";
+    #else 
+    ntuple_list_file= "/minerva/app/users/jam3/cmtuser/root2hdf5proj/data/ccprotonpi0_me1N.txt";
+    filebase = "ccprotonpi0_me1N";
+    #endif    
+    int impose_nukecc_cuts = 0;
     int first_event_number = 0;
     bool is_data = false;
     bool norm_to_max = false;

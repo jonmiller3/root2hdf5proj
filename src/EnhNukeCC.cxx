@@ -12,20 +12,21 @@ using namespace RECOTRACKS_ANA;
 
 
 //----------------------------------------------------------------------------
-void EnhNukeCC::setNumberOfBuckets(unsigned int numberOfBuckets) 
+void EnhCC::setNumberOfBuckets(unsigned int numberOfBuckets) 
 {
     m_numberOfBuckets = numberOfBuckets;
     setBitMasksAndShifts();
 }
 
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getNumberOfBuckets() const 
+unsigned int EnhCC::getNumberOfBuckets() const 
 {
     return m_numberOfBuckets;
 }
 
+
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getLatticeSize() const
+unsigned int EnhCC::getLatticeSize() const
 {
     // there are 208 planes in Minerva
     // by default, we use only 188 of them (99 modules - 5 targets, times 2
@@ -40,8 +41,9 @@ unsigned int EnhNukeCC::getLatticeSize() const
             m_mostDownstreamModuleInLattice * 2);
 }
 
+
 //----------------------------------------------------------------------------
-std::string EnhNukeCC::latticePositionIntoString(unsigned int latticepos) const
+std::string EnhCC::latticePositionIntoString(unsigned int latticepos) const
 {
     std::stringstream ss;
     ss
@@ -54,7 +56,7 @@ std::string EnhNukeCC::latticePositionIntoString(unsigned int latticepos) const
 }
 
 //----------------------------------------------------------------------------
-void EnhNukeCC::setBitMasksAndShifts()
+void EnhCC::setBitMasksAndShifts()
 {
     m_viewShiftBits = 0;
     m_viewMask = (0x3 << m_viewShiftBits);
@@ -74,26 +76,27 @@ void EnhNukeCC::setBitMasksAndShifts()
     m_bucketMask = (larger_power_of_two << m_bucketShiftBits);
 }
 
+
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getModuleFromLatticePos(unsigned int latticepos) const
+unsigned int EnhCC::getModuleFromLatticePos(unsigned int latticepos) const
 {
     return (latticepos & m_moduleMask) >> m_moduleShiftBits;
 }
 
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getPlaneFromLatticePos(unsigned int latticepos) const
+unsigned int EnhCC::getPlaneFromLatticePos(unsigned int latticepos) const
 {
     return (latticepos & m_planeMask) >> m_planeShiftBits;
 }
 
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getViewFromLatticePos(unsigned int latticepos) const
+unsigned int EnhCC::getViewFromLatticePos(unsigned int latticepos) const
 {
     return (latticepos & m_viewMask) >> m_viewShiftBits;
 }
 
 //----------------------------------------------------------------------------
-std::string EnhNukeCC::getStringViewFromLatticePos(unsigned int latticepos) const
+std::string EnhCC::getStringViewFromLatticePos(unsigned int latticepos) const
 {
     unsigned int view = getViewFromLatticePos(latticepos);
     if (0 == view) {
@@ -108,14 +111,15 @@ std::string EnhNukeCC::getStringViewFromLatticePos(unsigned int latticepos) cons
     return "Unknown";
 }
 
+
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getBucketFromLatticePos(unsigned int latticepos) const
+unsigned int EnhCC::getBucketFromLatticePos(unsigned int latticepos) const
 {
     return (latticepos & m_bucketMask) >> m_bucketShiftBits;
 }
 
 //----------------------------------------------------------------------------
-unsigned int EnhNukeCC::getLatticeIndexForCoords(unsigned int bucket,
+unsigned int EnhCC::getLatticeIndexForCoords(unsigned int bucket,
         unsigned int module, unsigned int plane, unsigned int view) const
 {
     unsigned int idx = 0;

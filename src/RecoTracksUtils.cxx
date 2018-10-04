@@ -46,6 +46,7 @@ TChain* RecoTracksUtils::getMCTree(std::string name,
     else if (name=="RecoTracks" || 
             name=="Meta" || 
             name=="NukeCC" || 
+            name=="CCProtonPi0" || 
             name=="MLVFSamplePrepTool")
     {
         get_mc_files( chain, file_name );
@@ -493,6 +494,23 @@ int RecoTracksUtils::getPlaneIdCode(const EnhNukeCC* mc) const
 
 //----------------------------------------------------------------------------
 void RecoTracksUtils::getFSParticles(const EnhNukeCC* mc,
+        std::vector<int>& pdgs,
+        std::vector<double>& energies) const
+{
+    for (int i = 0; i < mc->mc_nFSPart; ++i) {
+        double m2 = TMath::Power(mc->mc_FSPartE[i], 2.0) -
+            TMath::Power(mc->mc_FSPartPx[i], 2.0) -
+            TMath::Power(mc->mc_FSPartPy[i], 2.0) -
+            TMath::Power(mc->mc_FSPartPz[i], 2.0);
+        double m = m2 > 0.0 ? TMath::Sqrt(m2) : 0.0;
+        double ke = mc->mc_FSPartE[i] - m;
+        pdgs.push_back(mc->mc_FSPartPDG[i]);
+        energies.push_back(ke);
+    }
+}
+
+//----------------------------------------------------------------------------
+void RecoTracksUtils::getFSParticles(const EnhCCProtonPi0* mc,
         std::vector<int>& pdgs,
         std::vector<double>& energies) const
 {
